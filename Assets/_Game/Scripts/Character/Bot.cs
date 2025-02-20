@@ -16,17 +16,16 @@ public class Bot : Character
     void Update() {
         if (target != null) {
             agent.SetDestination(target.position);
+            if (Vector3.Distance(transform.position, target.position) <= agent.stoppingDistance) {
+                StopBot(); // Gọi hàm dừng bot
+            }
         }
     }
+    void StopBot()
+    {
+        agent.isStopped = true; // Dừng NavMeshAgent
+        agent.velocity = Vector3.zero; // Đảm bảo bot dừng hẳn
 
-
-    protected void OnCollisionEnter(Collision collision) {
-        if (collision.gameObject.CompareTag("Player")) {
-            GameManager.instance.GameOver();
-        }
-
-        if (collision.gameObject.CompareTag("Finish") && isWinning == false) {
-            GameManager.instance.WinGame();
-        }
+        Debug.Log("Bot đã đến mục tiêu và dừng lại!");
     }
 }

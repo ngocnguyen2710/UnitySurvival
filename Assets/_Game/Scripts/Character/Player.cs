@@ -1,59 +1,31 @@
+using System;
 using System.IO.Compression;
 using UnityEngine;
 
 public class Player : Character
 {
-    [SerializeField] private float _speed = 1;
-    [SerializeField] private Rigidbody _rb;
-    [SerializeField] private FloatingJoystick floatingJoystick;
-    // int eaten;
     private void Start() {
         OnInit();
     }
 
     void OnInit() {
-        eaten = 0;
         isWinning = false;
     }
 
     void Update() {
-        _rb.linearVelocity = new Vector3(floatingJoystick.Horizontal * _speed, _rb.linearVelocity.y, floatingJoystick.Vertical * _speed);
+        UpdateState();
+        // Attack();
+    }
 
-        Vector3 beginCast = transform.forward + transform.position;
-        Ray ray = new Ray(beginCast, Vector3.down);
-        Debug.DrawRay(beginCast, Vector3.down, Color.red, 1f);
-        // if (Physics.Raycast(ray, out RaycastHit hit)) {
-        //     if (hit.transform.CompareTag("Bridge")) {
-        //         Bridge bridge = hit.transform.gameObject.GetComponent<Bridge>();
-        //         GameObject bridgeObject = hit.transform.gameObject;
-        //         if (eaten > 0 && (int)bridge.GetBridgeColor() != (int)GetCharacterType()) {
-        //             //set the bridge color to player color
-        //             bridge.SetBridgeColor((int)GetCharacterType());
-        //             bridgeObject.GetComponent<MeshRenderer>().material.color = GetCharacterTypeColor();
-        //             //destroy the brick on top of the player
-        //             Destroy(transform.GetChild(transform.childCount - 1).gameObject);
-        //             eaten--;
-        //         } 
-                
-        //         if ((int)bridge.GetBridgeColor() == (int)GetCharacterType()) {
-        //             _rb.linearVelocity = new Vector3(floatingJoystick.Horizontal * _speed, _rb.linearVelocity.y, floatingJoystick.Vertical * _speed);
-        //         } else {
-        //             if (floatingJoystick.Vertical > 0) {
-        //                 _rb.linearVelocity = new Vector3(floatingJoystick.Horizontal * _speed, _rb.linearVelocity.y, 0 * _speed);
-        //             } else {
-        //                 _rb.linearVelocity = new Vector3(floatingJoystick.Horizontal * _speed, _rb.linearVelocity.y, floatingJoystick.Vertical * _speed);
-        //             }
-        //         }
-        //     }
-        // }
-        
-        if (floatingJoystick.Horizontal != 0 || floatingJoystick.Vertical != 0) {
-            if (_rb.linearVelocity != Vector3.zero) {
-                transform.rotation = Quaternion.LookRotation(_rb.linearVelocity);
-            }
-            ChangeAnim("walk");
-        } else {
-            ChangeAnim("idle");
+    private void DrawCircle() {
+        float radius = 10f;
+        for (float radians = 0; radians <= Mathf.PI*2 ; radians ++) {
+            float x = radius * Mathf.Cos(radians);
+            float z = radius * Mathf.Sin(radians);
+            float y = 1;
+            GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            cube.transform.position = new Vector3(x, y, z);
+            cube.transform.SetParent(transform);
         }
     }
 }

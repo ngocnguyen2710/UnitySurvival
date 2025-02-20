@@ -73,5 +73,5 @@ public class GameManager : MonoBehaviour
         } catch (Exception e) {
             Debug.LogError("Failed to save high score: " + e.Message);
         }
-}
+    }
 }
