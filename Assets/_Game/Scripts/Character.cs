@@ -23,24 +23,23 @@ public class Character : MonoBehaviour {
         ChangeAnim("attack");
         //turn face to enemy
         Vector3 direction = enemy.transform.position - transform.position;
+        direction.y = 0;
         transform.rotation = Quaternion.LookRotation(direction);
         if (attackCooldown < 0.1f) {
             attackCooldown = 2f;
             if (weapon != null) {
-                if (weapon is Gun) {
-                    Debug.Log("Using Gun to shoot");
-                } else if (weapon is Hammer) {
-                    Debug.Log("Using Hammer to shoot");
-                }
-                weapon.Shoot(); // Use the Shoot method from the Weapon class
+                // if (weapon is Gun) {
+                //     Debug.Log("Using Gun to shoot");
+                // } else if (weapon is Hammer) {
+                //     Debug.Log("Using Hammer to shoot");
+                // }
+                weapon.Shoot();
             }
-        } else {
-            attackCooldown -= Time.deltaTime;
         }
     }
 
     protected void UpdateState() {
-        if (_rb.linearVelocity.magnitude < 0.1f) {
+        if (IsCharacterStay()) {
             if (ClosestPlayer() != null) {
                 Attack(ClosestPlayer());
             } else {
@@ -50,6 +49,10 @@ public class Character : MonoBehaviour {
             ChangeAnim("walk");
             // reset attack cooldown on moving
             // attackCooldown = 2f;
+        }
+
+        if (attackCooldown > 0f) {
+            attackCooldown -= Time.deltaTime;
         }
     }
 
@@ -71,7 +74,21 @@ public class Character : MonoBehaviour {
     }
 
     private void OnDrawGizmos() {
-        Gizmos.color = Color.green; // Màu hình cầu
-        Gizmos.DrawWireSphere(transform.position, attackRadius); // Vẽ hình cầu
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(transform.position, attackRadius);
+    }
+
+    bool IsCharacterStay() {
+        if (this is Bot) {
+            NavMeshAgent agent = GetComponent<NavMeshAgent>();
+            return agent.velocity.magnitude < 0.1f;
+        }
+        return _rb.linearVelocity.magnitude < 0.1f;
+    }
+
+    protected void GameOver() {
+        GameManager.instance.GameOver();
+        isWinning = true;
+        Debug.Log("Game Over");
     }
 }

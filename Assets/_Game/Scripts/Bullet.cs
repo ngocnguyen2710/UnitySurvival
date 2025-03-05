@@ -17,10 +17,13 @@ public class Bullet : MonoBehaviour
         if (Vector3.Distance(transform.position, spawnPosition) > attackRadius) {
             Destroy(gameObject);
         }
-    }
-    private void OnCollisionEnter(Collision collision) {
-        if (collision.gameObject.CompareTag("Bot") || collision.gameObject.CompareTag("Player")) {
-            Destroy(gameObject);
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, transform.forward, out hit, 0.1f)) {
+            if (hit.collider.gameObject.CompareTag("Bot") || hit.collider.gameObject.CompareTag("Player")) {
+                Debug.Log("Hit " + hit.collider.gameObject.name);
+                
+                Destroy(gameObject);
+            }
         }
     }
 }
