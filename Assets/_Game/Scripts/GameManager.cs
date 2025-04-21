@@ -19,13 +19,32 @@ public class GameManager : MonoBehaviour
     private int highScore;
     private bool hasWon = false;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
+    [SerializeField] private GameObject botPrefab; // Assign the bot prefab in the Inspector
+    public int numberOfBots = 5; // Number of bots to spawn
+    [SerializeField] private Vector3 spawnAreaCenter = Vector3.zero; // Center of the spawn area
+    [SerializeField] private GameObject playGround;
+    public float botCircleRadius = 15f; // Radius of the bot running circle
+
+    private void SpawnBots() {
+        for (int i = 0; i < numberOfBots; i++) {
+            //why 9? because im using plane which 1 scale = 10 unit, idk lol
+            Vector3 randomPosition = new Vector3(
+                UnityEngine.Random.Range(spawnAreaCenter.x - playGround.transform.localScale.x * 9 / 2, spawnAreaCenter.x + playGround.transform.localScale.x * 9 / 2),
+                spawnAreaCenter.y,
+                UnityEngine.Random.Range(spawnAreaCenter.z - playGround.transform.localScale.z * 9 / 2, spawnAreaCenter.z + playGround.transform.localScale.z * 9 / 2)
+            );
+
+            Instantiate(botPrefab, randomPosition, Quaternion.identity);
+        }
+    }
+
     void Start() {
-        if(instance == null) {
+        if (instance == null) {
             instance = this;
         }
         replayButton.onClick.AddListener(Replay);
         OnInit();
-        // DrawCircle();
+        SpawnBots(); // Call the method to spawn bots
     }
 
     private void OnInit() {

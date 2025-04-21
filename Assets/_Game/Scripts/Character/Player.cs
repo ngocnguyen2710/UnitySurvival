@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class Player : Character
 {
+    [SerializeField] private FloatingJoystick floatingJoystick;
+
     private void Start() {
         OnInit();
     }
@@ -15,6 +17,21 @@ public class Player : Character
     void Update() {
         UpdateState();
         // Attack();
+    }
+
+    void FixedUpdate() {
+        MovementInput();
+    }
+
+    void MovementInput() {
+        _rb.linearVelocity = new Vector3(floatingJoystick.Horizontal * _speed, _rb.linearVelocity.y, floatingJoystick.Vertical * _speed);
+        
+        if (floatingJoystick.Horizontal != 0 || floatingJoystick.Vertical != 0) {
+            if (_rb.linearVelocity != Vector3.zero) {
+                transform.rotation = Quaternion.LookRotation(_rb.linearVelocity);
+            }
+        } else {
+        }
     }
 
     private void DrawCircle() {

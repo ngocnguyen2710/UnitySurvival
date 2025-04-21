@@ -1,26 +1,58 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
 public class Character : MonoBehaviour {
-    [SerializeField] public Rigidbody _rb;
-    [SerializeField] private Animator anim;
+    public Rigidbody _rb;
+    public float _speed = 10f;
+    private Animator anim;
     [SerializeField] private float attackCooldown = 0f;
     [SerializeField] private Weapon weapon;
     public float attackRadius = 10f;
     private string currentAnimName;
     protected bool isWinning;
+    protected bool isAttacking = false;
+    protected bool isMoving = false;
+    protected bool isIdle = true;
+    private static int botDownCount = 0;
+
+    private void Start() {
+        anim = GetComponentInChildren<Animator>();
+        _rb = GetComponent<Rigidbody>();
+    }
 
     public void ChangeAnim(string animName) {
-        if(currentAnimName != animName) {
-            anim.ResetTrigger(animName);
-            currentAnimName = animName;
-            anim.SetTrigger(currentAnimName);
+        if(anim == null) return;
+        if (currentAnimName == animName) return;
+        if (animName == "attack") {
+            anim.SetBool("isAttacking", true);
+            anim.SetBool("isMoving", false);
+            anim.SetBool("isIdle", false);
+            isAttacking = true;
+            isIdle = false;
+            isMoving = false;
+        } else if (animName == "walk") {
+            anim.SetBool("isMoving", true);
+            anim.SetBool("isIdle", false);
+            anim.SetBool("isAttacking", false);
+            isMoving = true;
+            isIdle = false;
+            isAttacking = false;
+        } else if (animName == "idle") {
+            anim.SetBool("isIdle", true);
+            anim.SetBool("isMoving", false);
+            anim.SetBool("isAttacking", false);
+            isIdle = true;
+            isMoving = false;
+            isAttacking = false;
         }
     }
 
     protected void Attack(Character enemy) {
-        ChangeAnim("attack");
+        if(anim != null) {
+            ChangeAnim("attack");
+        }
         //turn face to enemy
         Vector3 direction = enemy.transform.position - transform.position;
         direction.y = 0;
@@ -39,14 +71,18 @@ public class Character : MonoBehaviour {
     }
 
     protected void UpdateState() {
-        if (IsCharacterStay()) {
+        if(IsCharacterStay()) {
             if (ClosestPlayer() != null) {
                 Attack(ClosestPlayer());
             } else {
-                ChangeAnim("idle");
+                if(anim != null) {
+                    ChangeAnim("idle");
+                }
             }
         } else {
-            ChangeAnim("walk");
+            if(anim != null) {
+                ChangeAnim("walk");
+            }
             // reset attack cooldown on moving
             // attackCooldown = 2f;
         }
@@ -86,9 +122,27 @@ public class Character : MonoBehaviour {
         return _rb.linearVelocity.magnitude < 0.1f;
     }
 
+    void OnTriggerEnter(Collider other) {
+        if (other.CompareTag("Bullet")) {
+            Debug.Log(this.name + " get shot");
+            if (this.CompareTag("Bot")) {
+                Destroy(gameObject);
+                botDownCount++;
+                Debug.Log(botDownCount);
+                if (botDownCount >= GameManager.instance.numberOfBots) {
+                    GameManager.instance.WinGame();
+                    isWinning = true;
+                    Debug.Log("You win!");
+                }
+            } else {
+                GameOver();
+            }
+        } 
+    }
+
     protected void GameOver() {
         GameManager.instance.GameOver();
-        isWinning = true;
+        isWinning = false;
         Debug.Log("Game Over");
     }
 }
