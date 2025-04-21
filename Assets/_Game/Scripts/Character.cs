@@ -130,9 +130,7 @@ public class Character : MonoBehaviour {
                 botDownCount++;
                 Debug.Log(botDownCount);
                 if (botDownCount >= GameManager.instance.numberOfBots) {
-                    GameManager.instance.WinGame();
-                    isWinning = true;
-                    Debug.Log("You win!");
+                    WinGame();
                 }
             } else {
                 GameOver();
@@ -142,7 +140,15 @@ public class Character : MonoBehaviour {
 
     protected void GameOver() {
         GameManager.instance.GameOver();
+        botDownCount = 0;
         isWinning = false;
         Debug.Log("Game Over");
+    }
+
+    protected void WinGame() {
+        GameManager.instance.WinGame();
+        botDownCount = 0;
+        isWinning = true;
+        Debug.Log("You win!");
     }
 }
